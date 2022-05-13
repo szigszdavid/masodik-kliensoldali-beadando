@@ -1,6 +1,6 @@
 # Feladatsorok alkalmazás
 
-_Kliensoldali webprogramozás 2. beadandó:_
+_Kliensoldali webprogramozás 2. beadandó_
 
 ## Nyilatkozat
 
@@ -180,6 +180,38 @@ A mentett adatok egy lokális SQLite táblában jelennek meg: `feladatsor_restap
 
 Elvárás az igényes megjelenés. Ehhez használhatsz saját CSS-t is, de komponens függvénykönyvárakat is, mint pl. [Material UI](https://mui.com/) vagy [Bootstrap](https://react-bootstrap.github.io/).
 
+## Feltöltendő
+
+Az egész projektet tömörítsd be, kliensestül, szerverestül, és azt töltsd föl. **Beadás (tömörítés) előtt a `node_modules` mappákat mindenképpen töröld!**
+
 ## Pontozás
 
-TBA
+Összesen 30 pont érhető el.
+
+- React használata (kötelező)
+- Redux használata (kötelező)
+- Navigáció megfelelően változik a be- és kijelentkezésnek megfelelően (1pt)
+- Főoldal megjelenik (1pt)
+- Feladatbank: megjelennek a feladatok a megfelelő tartalommal (1pt)
+- Feladatbank: 10 feladat jelenik meg, előre-hátra lapozással (2pt)
+- Feladatbank: feladatra kattintva megjelenik a feladat leírása (2pt)
+- Feladatbank: bejelentkezett felhasználónál ha a feladat nincs kiválasztva, akkor megjelenik a "Kiválaszt" gomb (1pt)
+- Feladatbank: bejelentkezett felhasználónál ha a feladat már ki van választva, akkor megjelenik a "Kiválasztva" felirat (1pt)
+- Feladatbank: "Kiválaszt" gomb helyes működése (2pt)
+- Regisztráció működik (1pt)
+- Bejelentkezés működik (1pt)
+- Feladatsoraim: csak bejelentkezve érhető el (1pt)
+- Feladatsoraim: a felhasználóhoz tartozó feladatsorok megjelennek (1pt)
+- Feladatsoraim: feladatsorra kattintva a feladatsor részletei megjelennek (1pt)
+- Feladatsoraim: "Szerkeszt" gomb helyes működése (1pt)
+- Feladatsoraim: "Új feladatsor" gomb helyes működése (1pt)
+- Szerkesztett feladatsor: csak bejelentkezve érhető el és ha van szerkesztésre jelölt feladatsor (1pt)
+- Szerkesztett feladatsor: a megjelenített adatok megfelelőek (1pt)
+- Szerkesztett feladatsor: a jelölt adatok szerkeszthetők (2pt)
+- Szerkesztett feladatsor: "Mentés" gomb helyes működése (2pt)
+- Szerkesztett feladatsor: "Szerkesztés lezárása" gomb helyes működése (2pt)
+- Profil: csak bejelentkezve érhető el, megfelelő tartalommal (1pt)
+- Profil: Kijelentkezés gomb működik (1pt)
+- Igényes megjelenés (2pt)
+- 1 hét késés (-3pt)
+- 2 hét késés (-6pt)
