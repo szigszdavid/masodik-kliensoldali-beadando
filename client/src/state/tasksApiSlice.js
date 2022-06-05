@@ -54,8 +54,8 @@ export const tasksApiSlice = createApi({
             }),
         }),
         getTaskLists: builder.query({
-            query: () => ({
-                url: "tasklists"
+            query: (pageNumber) => ({
+                url: `tasklists?$skip=${pageNumber}&$limit=5`,
             }),
             transformResponse: (response) => response.data,
         }),

@@ -15,36 +15,14 @@ export function EditableTaskList() {
   const [sumOfPoints, setSumOfPoints] = useState(0);
   const [id, setId] = useState(0);
   const [data, setData] = useState({
-    title: "title1",
+    title: "",
     status: "draft",
-    description: "desc1",
-    numberOfTasks: 1,
-    createdAt: "createdAt1",
-    updatedAt: "updateAt1",
-    sumOfPoints: 1,
-    tasks: [
-      {
-        id: 1,
-        title: "task1",
-        description: "desc1",
-        notes: "note1",
-        points: 1,
-      },
-      {
-        id: 2,
-        title: "task2",
-        description: "desc1",
-        notes: "note1",
-        points: 1,
-      },
-      {
-        id: 3,
-        title: "task3",
-        description: "desc1",
-        notes: "note1",
-        points: 1,
-      },
-    ],
+    description: "",
+    numberOfTasks: 0,
+    createdAt: "",
+    updatedAt: "",
+    sumOfPoints: 0,
+    tasks: [],
   });
 
   const [createTask] = useCreateTasklistMutation();
@@ -58,8 +36,6 @@ export function EditableTaskList() {
       setData(localStorageTasklist)
       setId(localStorageTasklist.id);
     }
-    
-
   }, [])
   
 
@@ -246,6 +222,7 @@ export function EditableTaskList() {
         />
       </Form.Group>
       <Form.Label>Tasks</Form.Label>
+      {console.log(data.tasks)}
       <Table>
         {data.tasks.map((el) => {
           return (

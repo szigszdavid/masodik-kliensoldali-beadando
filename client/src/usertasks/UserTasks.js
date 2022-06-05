@@ -8,85 +8,56 @@ import { useNavigate } from "react-router-dom";
 import { selectUpdatedTaskList, selectUpdatedTaskListId } from "../state/tasksSlice";
 
 export function UserTasks() {
-  const [tasksLists, setTasksLists] = useState([
-    {
-      title: "title1",
-      status: "status1",
-      description: "desc1",
-      numberOfTasks: 1,
-      createdAt: "createdAt1",
-      updatedAt: "updateAt1",
-      sumOfPoints: 1,
-      tasks: [
-        {
-          title: "task1",
-          description: "desc1",
-          notes: "note1",
-          points: 1,
-        },
-        {
-          title: "task2",
-          description: "desc1",
-          notes: "note1",
-          points: 1,
-        },
-        {
-          title: "task3",
-          description: "desc1",
-          notes: "note1",
-          points: 1,
-        },
-      ],
-    },
-    {
-      title: "title2",
-      status: "status2",
-      description: "desc2",
-      numberOfTasks: 2,
-      createdAt: "createdAt2",
-      updatedAt: "updateAt2",
-      sumOfPoints: 1,
-      tasks: [],
-    },
-    {
-      title: "title3",
-      status: "status3",
-      description: "desc3",
-      numberOfTasks: 3,
-      createdAt: "createdAt3",
-      updatedAt: "updateAt3",
-      sumOfPoints: 1,
-      tasks: [],
-    },
-  ]);
+  const [tasksLists, setTasksLists] = useState([]);
+  const [userId, setUserId] = useState(0)
+  const [sumOfPoints, setSumOfPoints] = useState([])
+  const [pageNumber, setPageNumber] = useState(0)
 
-  const user = useSelector(selectLoggedInUser);
-  const { isLoading, data } = useGetTaskListsQuery();
+  const { isLoading, data } = useGetTaskListsQuery(pageNumber * 5);
   const navigate = useNavigate();
   const result = useSelector(selectUpdatedTaskList)
 
-  const { userTask } = useGetTaskListsQuery(undefined, {
+  const { userTask } = useGetTaskListsQuery(pageNumber * 5, {
     selectFromResult: ({ data: inputTasks }) => ({
-      userTask: inputTasks?.filter((task) => task.userId === 1),
+      userTask: inputTasks?.filter((task) => task.userId === userId),
     }),
   });
-
-  console.log("Result state: ", result);
-  
+ 
+  useEffect(() => {
+    if(window.localStorage.getItem("user") !== null)
+    {
+      const  localStorageUser = JSON.parse(window.localStorage.getItem("user"))
+      setUserId(localStorageUser.user.id)
+    }
+  },[])
 
   useEffect(() => {
     if (data !== undefined && userTask !== undefined) {
-      console.log("A user taskjai: ", userTask);
+      let points = 0
+      let userTaskPoints = []
+      for (let index = 0; index < userTask.length; index++) {
+        points = 0
+        for (let j = 0; j < userTask[index].tasks.length; j++) {
+          points += userTask[index].tasks[j].points
+        }
+        userTaskPoints.push({ title: userTask[index].title, sumOfPoints: points })
+        setSumOfPoints(userTaskPoints)
+      }
       setTasksLists(userTask);
     }
   }, [data]);
 
-  // if(!user) {
-  //   return <Login />;
-  // }
-
-  const editTaskListOnClick = (tasklist) => {
-    window.localStorage.setItem("editableTaskList", JSON.stringify(tasklist))
+  const editTaskListOnClick = () => {
+    window.localStorage.setItem("editableTaskList", JSON.stringify({
+      title: "",
+      status: "draft",
+      description: "",
+      numberOfTasks: 0,
+      createdAt: "",
+      updatedAt: "",
+      sumOfPoints: 0,
+      tasks: []
+    }))
     navigate("/editabletasklist", {replace: true})
   }
 
@@ -132,7 +103,7 @@ export function UserTasks() {
                         </tr>
                         <tr>
                           <td>Sum of points</td>
-                          <td>{tasksList.sumOfPoints}</td>
+                          <td>{sumOfPoints.find(task => task.title === tasksList.title).sumOfPoints}</td>
                         </tr>
                         <tr>
                           <td>Tasks:</td>
@@ -158,7 +129,7 @@ export function UserTasks() {
               </td>
               <td>{tasksList.status}</td>
               <td>{tasksList.description}</td>
-              <td>{tasksList.numberOfTasks}</td>
+              <td>{tasksList.tasks.length}</td>
               <td>{tasksList.createdAt}</td>
               <td>{tasksList.updatedAt}</td>
               {window.localStorage.getItem("editableTaskList") === null ? <td>
@@ -171,6 +142,7 @@ export function UserTasks() {
     </Table>
   );
 
+
   return (
     <div className="container">
       <h1>My TaskList</h1>
@@ -180,6 +152,22 @@ export function UserTasks() {
       </Button>
       <br />
       {tasksTable}
+      <br/>
+      <Button
+            onClick={() => {
+              setPageNumber(pageNumber !== 0 ? pageNumber - 1 : 0);
+            }}
+          >
+            Previous
+          </Button>
+          {" Page: " + pageNumber + " "}
+          <Button
+            onClick={() => {
+              setPageNumber(pageNumber + 1);
+            }}
+          >
+            Next
+          </Button>      
     </div>
   );
 }
