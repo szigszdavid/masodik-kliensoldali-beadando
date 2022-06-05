@@ -1,65 +1,81 @@
 import { useState, useEffect } from "react";
-import { Table, Accordion, Button } from "react-bootstrap";
+import {
+  Table,
+  Accordion,
+  Button,
+  ListGroup,
+  Container,
+  Row,
+  Col,
+} from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { selectLoggedInUser } from "../state/authSlice";
 import { Login } from "../login/Login";
 import { useGetTaskListsQuery } from "../state/tasksApiSlice";
 import { useNavigate } from "react-router-dom";
-import { selectUpdatedTaskList, selectUpdatedTaskListId } from "../state/tasksSlice";
+import {
+  selectUpdatedTaskList,
+  selectUpdatedTaskListId,
+} from "../state/tasksSlice";
 
 export function UserTasks() {
   const [tasksLists, setTasksLists] = useState([]);
-  const [userId, setUserId] = useState(0)
-  const [sumOfPoints, setSumOfPoints] = useState([])
-  const [pageNumber, setPageNumber] = useState(0)
+  const [userId, setUserId] = useState(0);
+  const [sumOfPoints, setSumOfPoints] = useState([]);
+  const [pageNumber, setPageNumber] = useState(0);
 
-  const { isLoading, data } = useGetTaskListsQuery(pageNumber * 5);
+  const { isLoading, data} = useGetTaskListsQuery(pageNumber * 5);
   const navigate = useNavigate();
-  const result = useSelector(selectUpdatedTaskList)
-
+  const result = useSelector(selectUpdatedTaskList);
   const { userTask } = useGetTaskListsQuery(pageNumber * 5, {
     selectFromResult: ({ data: inputTasks }) => ({
       userTask: inputTasks?.filter((task) => task.userId === userId),
     }),
   });
- 
+  
   useEffect(() => {
-    if(window.localStorage.getItem("user") !== null)
-    {
-      const  localStorageUser = JSON.parse(window.localStorage.getItem("user"))
-      setUserId(localStorageUser.user.id)
+    if (window.localStorage.getItem("user") !== null) {
+      const localStorageUser = JSON.parse(window.localStorage.getItem("user"));
+      setUserId(localStorageUser.user.id);
     }
-  },[])
+  }, []);
 
   useEffect(() => {
     if (data !== undefined && userTask !== undefined) {
-      let points = 0
-      let userTaskPoints = []
+      let points = 0;
+      let userTaskPoints = [];
       for (let index = 0; index < userTask.length; index++) {
-        points = 0
+        points = 0;
         for (let j = 0; j < userTask[index].tasks.length; j++) {
-          points += userTask[index].tasks[j].points
+          points += userTask[index].tasks[j].points;
         }
-        userTaskPoints.push({ title: userTask[index].title, sumOfPoints: points })
-        setSumOfPoints(userTaskPoints)
+        userTaskPoints.push({
+          title: userTask[index].title,
+          sumOfPoints: points,
+        });
+        setSumOfPoints(userTaskPoints);
       }
       setTasksLists(userTask);
     }
+    
   }, [data]);
 
   const editTaskListOnClick = () => {
-    window.localStorage.setItem("editableTaskList", JSON.stringify({
-      title: "",
-      status: "draft",
-      description: "",
-      numberOfTasks: 0,
-      createdAt: "",
-      updatedAt: "",
-      sumOfPoints: 0,
-      tasks: []
-    }))
-    navigate("/editabletasklist", {replace: true})
-  }
+    window.localStorage.setItem(
+      "editableTaskList",
+      JSON.stringify({
+        title: "",
+        status: "draft",
+        description: "",
+        numberOfTasks: 0,
+        createdAt: "",
+        updatedAt: "",
+        sumOfPoints: 0,
+        tasks: [],
+      })
+    );
+    navigate("/editabletasklist", { replace: true });
+  };
 
   let tasksTable = (
     <Table striped bordered>
@@ -103,7 +119,13 @@ export function UserTasks() {
                         </tr>
                         <tr>
                           <td>Sum of points</td>
-                          <td>{sumOfPoints.find(task => task.title === tasksList.title).sumOfPoints}</td>
+                          <td>
+                            {
+                              sumOfPoints.find(
+                                (task) => task.title === tasksList.title
+                              ).sumOfPoints
+                            }
+                          </td>
                         </tr>
                         <tr>
                           <td>Tasks:</td>
@@ -132,9 +154,18 @@ export function UserTasks() {
               <td>{tasksList.tasks.length}</td>
               <td>{tasksList.createdAt}</td>
               <td>{tasksList.updatedAt}</td>
-              {window.localStorage.getItem("editableTaskList") === null ? <td>
-                <Button className="btn btn-warning" onClick={() => editTaskListOnClick(tasksList)}>Edit</Button>
-              </td> : <></>}
+              {window.localStorage.getItem("editableTaskList") === null ? (
+                <td>
+                  <Button
+                    className="btn btn-warning"
+                    onClick={() => editTaskListOnClick(tasksList)}
+                  >
+                    Edit
+                  </Button>
+                </td>
+              ) : (
+                <></>
+              )}
             </tr>
           );
         })}
@@ -142,32 +173,39 @@ export function UserTasks() {
     </Table>
   );
 
-
   return (
     <div className="container">
       <h1>My TaskList</h1>
       <br />
-      <Button variant="success" onClick={() => editTaskListOnClick(0)}>
-        Create new TaskList
-      </Button>
+      <Container>
+        <Row>
+          <Col sm="5">
+            <Button variant="success" onClick={() => editTaskListOnClick(0)}>
+              Create new TaskList
+            </Button>
+          </Col>
+          <Col sm>
+            <Button
+              onClick={() => {
+                setPageNumber(pageNumber !== 0 ? pageNumber - 1 : 0);
+              }}
+            >
+              Previous
+            </Button>
+            {" Page: " + pageNumber + " "}
+            <Button disabled={tasksLists.length !== 5}
+              onClick={() => {
+                setPageNumber(pageNumber + 1)
+              }}
+            >
+              Next
+            </Button>
+          </Col>
+        </Row>
+      </Container>
       <br />
       {tasksTable}
-      <br/>
-      <Button
-            onClick={() => {
-              setPageNumber(pageNumber !== 0 ? pageNumber - 1 : 0);
-            }}
-          >
-            Previous
-          </Button>
-          {" Page: " + pageNumber + " "}
-          <Button
-            onClick={() => {
-              setPageNumber(pageNumber + 1);
-            }}
-          >
-            Next
-          </Button>      
+      <br />
     </div>
   );
 }

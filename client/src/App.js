@@ -26,9 +26,9 @@ function App() {
           <Route path="/tracks"/>
           <Route path="/registration" element={<Registration />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/usertasks" element={JSON.parse(window.localStorage.getItem("user")) !== null ? <UserTasks /> : <Login />} />
-          <Route path="/editabletasklist" element={JSON.parse(window.localStorage.getItem("user")) !== null ? <EditableTaskList /> : <Login />} />
-          <Route path="/profile" element={JSON.parse(window.localStorage.getItem("user")) !== null ? <Profile /> : <Login />} />
+          <Route path="/usertasks" element={<><RequireAuth><UserTasks /></RequireAuth></>} />
+          <Route path="/editabletasklist" element={<><RequireAuth><EditableTaskList /></RequireAuth></> } />
+          <Route path="/profile" element={<><RequireAuth><Profile /></RequireAuth></>} />
           <Route path="*" element={<Navigate to="/home" />} />
         </Route>
       </Routes>

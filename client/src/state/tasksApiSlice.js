@@ -57,7 +57,13 @@ export const tasksApiSlice = createApi({
             query: (pageNumber) => ({
                 url: `tasklists?$skip=${pageNumber}&$limit=5`,
             }),
-            transformResponse: (response) => response.data,
+            transformResponse: (response) => response.data
+        }),
+        getTaskListsLimit: builder.query({
+            query: () => ({
+                url: `tasklists`,
+            }),
+            transformResponse: (response) => response.total
         }),
         createTasklist: builder.mutation({
             query: (body) => ({
@@ -98,5 +104,6 @@ export const { useGetTasksQuery,
     useCreateTasklistMutation, 
     useUpdateTasklistMutation, 
     useGetTenDataQuery,
-    useGetOneTaskQuery
+    useGetOneTaskQuery,
+    useGetTaskListsLimitQuery
  } = tasksApiSlice

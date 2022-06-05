@@ -1,6 +1,6 @@
 import { React, useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
-import { useGetTasksQuery } from "../state/tasksApiSlice";
+import { useGetTaskListsLimitQuery, useGetTasksQuery } from "../state/tasksApiSlice";
 import { useDispatch } from "react-redux";
 import { logout } from "../state/authSlice";
 import { useNavigate } from "react-router-dom";
@@ -26,11 +26,8 @@ export function Profile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { userTask } = useGetTaskListsQuery(undefined, {
-    selectFromResult: ({ data: inputTasks }) => ({
-      userTask: inputTasks?.filter((task) => task.userId === user.id),
-    }),
-  });
+  const { data } = useGetTaskListsLimitQuery()
+  console.log(data);
   const handleLogoutButtonOnClick = () => {
     dispatch(logout());
     window.localStorage.removeItem("user");
@@ -52,7 +49,7 @@ export function Profile() {
           </tr>
           <tr>
               <td>Number of tasks</td>
-              <td>{userTask !== undefined ? userTask.length : 0}</td>
+              <td>{data}</td>
           </tr>
         </tbody>
       </Table>
