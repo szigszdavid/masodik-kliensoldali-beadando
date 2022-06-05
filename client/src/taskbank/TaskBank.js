@@ -2,6 +2,9 @@ import { React } from "react";
 import { ListGroup, Tab, Row, Col, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { useGetTasksQuery, useGetTenDataQuery } from "../state/tasksApiSlice";
+import { setEditableTask } from "../state/editableTaskSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectEditableTaskList } from "../state/editableTaskSlice";
 
 export function TaskBank() {
   const [selectedTasks, setSelectedTasks] = useState([]);
@@ -10,7 +13,9 @@ export function TaskBank() {
   const [pageNumber, setPageNumber] = useState(0);
 
   const { isLoading, data } = useGetTenDataQuery(pageNumber * 10);
-
+  const dispatch = useDispatch()
+  const editableSelector = useSelector(selectEditableTaskList)
+  
   useEffect(() => {
     setTasks([]);
 
@@ -103,6 +108,7 @@ export function TaskBank() {
       }
       setSelectedTasks(localStorageSelectedTasks);
     }
+    dispatch(setEditableTask(true))
   };
 
   let tasksTabPanes = [];

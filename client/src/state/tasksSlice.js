@@ -21,7 +21,7 @@ export const taskSlice = createSlice({
       state = result;
       console.log("Task sliceban: " + JSON.stringify(state));
     }
-  },
+  }
 });
 
 //reducer

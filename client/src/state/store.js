@@ -1,5 +1,6 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 import { authReducer } from "./authSlice";
+import { editableTaskReducer, editableTaskSlice } from "./editableTaskSlice";
 import { tasksApiSlice, tasksApiSliceReducer } from "./tasksApiSlice";
 import { taskSlice, tasksReducer } from "./tasksSlice";
 
@@ -9,6 +10,7 @@ export const store = configureStore({
         //tasksApi: tasksApiSliceReducer helyette:
         [taskSlice.reducerPath]: tasksReducer,
         [tasksApiSlice.reducerPath]: tasksApiSliceReducer,
+        editableTask: editableTaskReducer,
         auth: authReducer,
     },
     middleware: (getDefaultMiddleware) => 

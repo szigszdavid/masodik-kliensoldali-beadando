@@ -9,6 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { setUpdatedTaskList } from "../state/tasksSlice";
 import { useDispatch } from "react-redux";
+import { setEditableTask } from "../state/editableTaskSlice";
 
 export function EditableTaskList() {
   const [sumOfPoints, setSumOfPoints] = useState(0);
@@ -105,9 +106,10 @@ export function EditableTaskList() {
       dispatch(setUpdatedTaskList(result))
       window.localStorage.removeItem("selectedTask")
       window.localStorage.setItem("result", JSON.stringify(result))
+      dispatch(setEditableTask(false))
       navigate("/usertasks", {replace: true})
     }
-    
+
     window.localStorage.removeItem("selectedTask")
     window.localStorage.removeItem("editableTaskList")
   }
@@ -124,6 +126,7 @@ export function EditableTaskList() {
 
     window.localStorage.removeItem("selectedTask")
     window.localStorage.removeItem("editableTaskList")
+    dispatch(setEditableTask(false))
     navigate("/usertasks", {replace: true})
   };
 
