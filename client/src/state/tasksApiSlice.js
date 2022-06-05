@@ -79,6 +79,9 @@ export const tasksApiSlice = createApi({
             }),
             transformResponse: (response) => response.data,
         }),
+        getOneTask: builder.query({
+            query: (id) => `tasks/${id}`
+        })
     }),
 })
 
@@ -94,5 +97,6 @@ export const { useGetTasksQuery,
     useGetTaskListsQuery, 
     useCreateTasklistMutation, 
     useUpdateTasklistMutation, 
-    useGetTenDataQuery
+    useGetTenDataQuery,
+    useGetOneTaskQuery
  } = tasksApiSlice

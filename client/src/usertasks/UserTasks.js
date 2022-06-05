@@ -85,8 +85,8 @@ export function UserTasks() {
   //   return <Login />;
   // }
 
-  const editTaskListOnClick = (id) => {
-    window.localStorage.setItem("selectedTask", JSON.stringify(id))
+  const editTaskListOnClick = (tasklist) => {
+    window.localStorage.setItem("editableTaskList", JSON.stringify(tasklist))
     navigate("/editabletasklist", {replace: true})
   }
 
@@ -161,8 +161,8 @@ export function UserTasks() {
               <td>{tasksList.numberOfTasks}</td>
               <td>{tasksList.createdAt}</td>
               <td>{tasksList.updatedAt}</td>
-              {window.localStorage.getItem("selectedTask") === null ? <td>
-                <Button className="btn btn-warning" onClick={() => editTaskListOnClick(tasksList.id)}>Edit</Button>
+              {window.localStorage.getItem("editableTaskList") === null ? <td>
+                <Button className="btn btn-warning" onClick={() => editTaskListOnClick(tasksList)}>Edit</Button>
               </td> : <></>}
             </tr>
           );

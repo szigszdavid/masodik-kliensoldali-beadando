@@ -5,133 +5,151 @@ import { useGetTasksQuery, useGetTenDataQuery } from "../state/tasksApiSlice";
 
 export function TaskBank() {
   const [selectedTasks, setSelectedTasks] = useState([]);
-  const [choosenTask, setChoosenTask] = useState(null)
-  const [tasksHook, setTasks] = useState([])
-  const [pageNumber, setPageNumber] = useState(0)
+  const [choosenTask, setChoosenTask] = useState(null);
+  const [tasksHook, setTasks] = useState([]);
+  const [pageNumber, setPageNumber] = useState(0);
 
-  const {isLoading, data} = useGetTenDataQuery(pageNumber * 10)
-  console.log(data);
-
-  // const { oneTask } = useGetTasksQuery(undefined, {
-  //   selectFromResult: ( {data: inputTasks}) => ({
-  //     oneTask: inputTasks?.find((oneTask) => oneTask.id === 3)
-  //   }),
-  // })
-
-  // const { oneTask } = useGetTasksQuery(undefined, {
-  //   selectFromResult: ( {data: inputTasks}) => ({
-  //     oneTask: inputTasks?.slice(pageNumber * 10, (pageNumber + 1) * 10)
-  //   }),
-  // })
-
-  // if(isLoading)
-  // {
-  //   return "Loading";
-  // }
-
-  // const tasks = [
-  //   {
-  //     id: 1,
-  //     name: "taks1",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "taks2",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "taks3",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "taks4",
-  //   },
-  // ];
+  const { isLoading, data } = useGetTenDataQuery(pageNumber * 10);
 
   useEffect(() => {
-    setTasks([])
-  }, [])
+    setTasks([]);
 
-
-  useEffect(() => {
-    if(data !== undefined)
-    {
-      console.log("data is set");
-      setTasks(data)
+    if (JSON.parse(window.localStorage.getItem("selectedTask")) !== null) {
+      let localStorageSelectedTasks = JSON.parse(
+        window.localStorage.getItem("selectedTask")
+      );
+      setSelectedTasks(localStorageSelectedTasks);
     }
-    
-  }, [data])
+  }, []);
 
   useEffect(() => {
-    if(data !== undefined)
-    {
-      console.log("data is set");
-      setTasks(data)
+    if (data !== undefined) {
+      setTasks(data);
     }
-    
-  }, [pageNumber])
+  }, [data]);
 
+  useEffect(() => {
+    if (data !== undefined) {
+      setTasks(data);
+    }
+  }, [pageNumber]);
 
   const tabePaneElementOnClick = () => {
-      if(!selectedTasks.some(task => task.id === choosenTask.id))
-      {
-        window.localStorage.setItem("selectedTask", JSON.stringify(choosenTask.id))
-        setSelectedTasks([...selectedTasks, choosenTask]);
+    if (!selectedTasks.some((task) => task.id === choosenTask.id)) {
+      let localStorageSelectedTasks = [];
+
+      if (JSON.parse(window.localStorage.getItem("selectedTask")) !== null) {
+        localStorageSelectedTasks = JSON.parse(
+          window.localStorage.getItem("selectedTask")
+        );
+
+        if (!localStorageSelectedTasks.includes(choosenTask.id)) {
+          let copyOfChoosenTask = {
+            createdAt: choosenTask.createdAt,
+            description: choosenTask.description,
+            id: choosenTask.id,
+            title: choosenTask.title,
+            updatedAt: choosenTask.updatedAt,
+            points: 0,
+            notes: "",
+          };
+          localStorageSelectedTasks.push(copyOfChoosenTask);
+          window.localStorage.setItem(
+            "selectedTask",
+            JSON.stringify(localStorageSelectedTasks)
+          );
+          window.localStorage.setItem(
+            "editableTaskList",
+            JSON.stringify({
+              id: 0,
+              title: "",
+              description: "",
+              status: "",
+              createdAt: "",
+              updatedAt: "",
+              userId: 0,
+              tasks: localStorageSelectedTasks,
+            })
+          );
+        }
+      } else {
+        let copyOfChoosenTask = {
+          createdAt: choosenTask.createdAt,
+          description: choosenTask.description,
+          id: choosenTask.id,
+          title: choosenTask.title,
+          updatedAt: choosenTask.updatedAt,
+          points: 0,
+          notes: "",
+        };
+        localStorageSelectedTasks.push(copyOfChoosenTask);
+        window.localStorage.setItem(
+          "selectedTask",
+          JSON.stringify(localStorageSelectedTasks)
+        );
+        window.localStorage.setItem(
+          "editableTaskList",
+          JSON.stringify({
+            id: 0,
+            title: "",
+            description: "",
+            status: "draft",
+            createdAt: "",
+            updatedAt: "",
+            userId: 0,
+            tasks: localStorageSelectedTasks,
+          })
+        );
       }
+      setSelectedTasks(localStorageSelectedTasks);
+    }
   };
 
   let tasksTabPanes = [];
-  if(choosenTask !== null)
-  {
-      tasksTabPanes.push(
-        <div>
+  if (choosenTask !== null) {
+    tasksTabPanes.push(
+      <div>
         <h3>{choosenTask.title}</h3>
         <span>{choosenTask.description}</span>
         <br></br>
-        {
-        JSON.parse(window.localStorage.getItem("user")) !== null ? (
-        !selectedTasks.some(task => task.id === choosenTask.id) ? 
-        <button
-          className="btn btn-primary"
-          onClick={() => tabePaneElementOnClick()}
-        >
-          Select
-        </button> : <button
-          className="btn btn-light"
-          disabled
-        >
-          Selected
-        </button>) : <div></div>}
+        {console.log(selectedTasks)}
+        {JSON.parse(window.localStorage.getItem("user")) !== null ? (
+          selectedTasks.length === 0 ||
+          selectedTasks.filter((task) => task.id === choosenTask.id).length ===
+            0 ? (
+            <button
+              className="btn btn-primary"
+              onClick={() => tabePaneElementOnClick()}
+            >
+              Select
+            </button>
+          ) : (
+            <button className="btn btn-light" disabled>
+              Selected
+            </button>
+          )
+        ) : (
+          <div></div>
+        )}
       </div>
-      )
+    );
   }
 
   const tasksListGroupItemsOnClick = (task) => {
-    setChoosenTask(task)
-  }
+    setChoosenTask(task);
+  };
 
-  let selectedTasksList = <ul>
-      {
-          selectedTasks.map((task) => {
-              return(
-                  <li>
-                      {task.id}
-                  </li>
-              )
-          })
-      }
-  </ul>
-
-let tasksListGroupItems = tasksHook.map((task) => {
-  return (
-    <ListGroup.Item action onClick={() => tasksListGroupItemsOnClick(task)} variant="info">
-      {task.title}
-      {" "}
-      {task.description.substring(0,10) + "..."}
-    </ListGroup.Item>
-  );})
-
-
+  let tasksListGroupItems = tasksHook.map((task) => {
+    return (
+      <ListGroup.Item
+        action
+        onClick={() => tasksListGroupItemsOnClick(task)}
+        variant="info"
+      >
+        {task.title} {task.description.substring(0, 10) + "..."}
+      </ListGroup.Item>
+    );
+  });
 
   return (
     <>
@@ -147,16 +165,27 @@ let tasksListGroupItems = tasksHook.map((task) => {
               <Col sm={4}>
                 <ListGroup>{tasksListGroupItems}</ListGroup>
               </Col>
-              <Col sm={8}>
-                {tasksTabPanes}
-              </Col>
+              <Col sm={8}>{tasksTabPanes}</Col>
             </Row>
           </Tab.Container>
-          <br/>
-          <Button onClick={() => {setPageNumber(pageNumber !== 0 ? pageNumber-1 : 0);setChoosenTask(null)}}>Previous</Button>
+          <br />
+          <Button
+            onClick={() => {
+              setPageNumber(pageNumber !== 0 ? pageNumber - 1 : 0);
+              setChoosenTask(null);
+            }}
+          >
+            Previous
+          </Button>
           {" Page: " + pageNumber + " "}
-          <Button onClick={() => {setPageNumber(pageNumber+1); setChoosenTask(null)}}>Next</Button>
-          {selectedTasksList}
+          <Button
+            onClick={() => {
+              setPageNumber(pageNumber + 1);
+              setChoosenTask(null);
+            }}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </>

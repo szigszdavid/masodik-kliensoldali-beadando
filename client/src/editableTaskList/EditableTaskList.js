@@ -4,6 +4,7 @@ import {
   useCreateTasklistMutation,
   useGetEditableTasksQuery,
   useUpdateTasklistMutation,
+  useGetOneTaskQuery
 } from "../state/tasksApiSlice";
 import { useNavigate } from "react-router-dom";
 import { setUpdatedTaskList } from "../state/tasksSlice";
@@ -51,13 +52,13 @@ export function EditableTaskList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (window.localStorage.getItem("selectedTask") !== null) {
-      console.log(
-        "Van task: ",
-        JSON.parse(window.localStorage.getItem("selectedTask"))
-      );
-      setId(parseInt(JSON.parse(window.localStorage.getItem("selectedTask"))));
+    if (window.localStorage.getItem("editableTaskList") !== null) {
+      let localStorageTasklist = JSON.parse(window.localStorage.getItem("editableTaskList"))
+      setData(localStorageTasklist)
+      setId(localStorageTasklist.id);
     }
+    
+
   }, [])
   
 
@@ -68,10 +69,10 @@ export function EditableTaskList() {
   };
 
   const { isLoading, data: queryData } = useGetEditableTasksQuery(id);
+  const { data: taskData } = useGetOneTaskQuery(1);
 
   useEffect(() => {
     if (queryData !== undefined) {
-      console.log("QueryData: ", queryData);
       setData(queryData);
       let sumHelper = 0;
       for (let index = 0; index < data.tasks.length; index++) {
@@ -81,7 +82,8 @@ export function EditableTaskList() {
       }
       setSumOfPoints(sumHelper);
     }
-  }, [queryData]);
+
+  }, [queryData, taskData]);
 
   const handleSaveChanges = async (e) => {
     
@@ -93,28 +95,25 @@ export function EditableTaskList() {
       numberOfTasks: data.numberOfTasks,
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
-      sumOfPoints: 1,
-      tasks: data.tasks 
+      tasks: data.tasks,
+      sumOfPoints: sumOfPoints
     }
-
-    console.log("Before update: ",saveChanges);
 
     let result = await updateTask(saveChanges).unwrap()
 
     if(result !== undefined){
       dispatch(setUpdatedTaskList(result))
-      console.log("result ",result);
       window.localStorage.removeItem("selectedTask")
       window.localStorage.setItem("result", JSON.stringify(result))
       navigate("/usertasks", {replace: true})
     }
     
+    window.localStorage.removeItem("selectedTask")
+    window.localStorage.removeItem("editableTaskList")
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(data.tasks);
 
     await createTask({
       title: data.title,
@@ -123,84 +122,48 @@ export function EditableTaskList() {
       tasks: data.tasks,
     });
 
-    
     window.localStorage.removeItem("selectedTask")
+    window.localStorage.removeItem("editableTaskList")
     navigate("/usertasks", {replace: true})
   };
 
   const handleChange = (e) => {
-    console.log("Change", e.target.value);
     setData({ ...data, [e.target.name]: e.target.value });
   };
   const handleChangeOnSingleTask = (e, el) => {
-    let newTasks = []
+    let helperObject = {...data}
+    let helperArray = [...helperObject.tasks]
     for (let index = 0; index < data.tasks.length; index++) {
-      newTasks.push({ 
-        title: data.tasks[index].title,
-        description: data.tasks[index].description,
-        notes: data.tasks[index].notes,
-        points: data.tasks[index].points,
-    })
-    }
-    
-    for (let index = 0; index < data.tasks.length; index++) {
-      if(data.tasks[index].title === el.title)
+      if(e.target.name === data.tasks[index].title)
       {
-        newTasks[index].notes = e.target.value
+        let copyOfData = {...helperArray[index]}
+        copyOfData.points = e.target.value
+        helperArray[index] = copyOfData
       }
     }
 
-    setData({
-      id: data.id,
-      title: data.title,
-      status: data.status,
-      description: data.description,
-      numberOfTasks: data.numberOfTasks,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      sumOfPoints: 1,
-      tasks: newTasks
-    });
-    console.log(e.target.value);
     let sumHelper = 0;
-    for (let index = 0; index < data.tasks.length; index++) {
-      if (data.tasks[index].points !== "") {
-        sumHelper += parseInt(data.tasks[index].points);
+    for (let index = 0; index < helperArray.length; index++) {
+      if (helperArray[index].points !== "") {
+        sumHelper += parseInt(helperArray[index].points);
       }
     }
+    setData({ ...data, ["tasks"]: helperArray });
     setSumOfPoints(sumHelper);
   };
 
   const handleChangeOnSingleTaskNotes = (e, el) => {
-    let newTasks = []
+    let helperObject = {...data}
+    let helperArray = [...helperObject.tasks]
     for (let index = 0; index < data.tasks.length; index++) {
-      newTasks.push({ 
-        id: data.tasks[index].id,
-        title: data.tasks[index].title,
-        description: data.tasks[index].description,
-        notes: data.tasks[index].notes,
-        points: data.tasks[index].points,
-    })
-    }
-    
-    for (let index = 0; index < data.tasks.length; index++) {
-      if(data.tasks[index].title === el.title)
+      if(e.target.name === data.tasks[index].title)
       {
-        newTasks[index].notes = e.target.value
+        let copyOfData = {...helperArray[index]}
+        copyOfData.notes = e.target.value
+        helperArray[index] = copyOfData
       }
     }
-
-    setData({
-      id: data.id,
-      title: data.title,
-      status: data.status,
-      description: data.description,
-      numberOfTasks: data.numberOfTasks,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-      sumOfPoints: 1,
-      tasks: [...newTasks]
-    });
+    setData({ ...data, ["tasks"]: helperArray });
   }
 
   return (
@@ -293,8 +256,8 @@ export function EditableTaskList() {
                     variant="standard"
                     //inputRef={usernameRef}
                     type="text"
-                    name="notes"
-                    value={el.notes}
+                    name={el.title}
+                    placeholder={el.notes}
                     autoFocus
                     onChange={(e) => handleChangeOnSingleTaskNotes(e, el)}
                     required
@@ -308,12 +271,11 @@ export function EditableTaskList() {
                     variant="standard"
                     //inputRef={usernameRef}
                     type="number"
-                    name="points"
-                    value={el.points}
+                    name={el.title}
                     autoFocus
+                    placeholder={el.points}
                     onChange={(e) => handleChangeOnSingleTask(e, el)}
                     required
-                    placeholder={JSON.stringify(el.points)}
                   />
                 </Form.Group>
               </td>
